@@ -1,80 +1,103 @@
 import React from 'react'
 import { useState } from 'react'
 import './TodoList.css'
+import axios from 'axios'
 import idGenerator from '../src/utils/idGenerator'
 
 
 const TodoList = ( { initialTodoList } ) => {
    
     const data = [
-        { id: 0, item: 'Get some milk' },
-        { id: 1, item: 'Buy bread' },
-        { id: 2, item: 'Do laundry' },
-        { id: 3, item: 'Feed dog'}
+        { id: 0, description: 'Get some milk' },
+        { id: 1, description: 'Buy bread' },
+        { id: 2, description: 'Do laundry' },
+        { id: 3, description: 'Feed dog'}
     ]
 
-    console.log('test one')
-
-
+    
+    
     const [todo, setTodo] = useState('')
-    const [list, setList] = useState([initialTodoList])
+    const [list, setList] = useState([])
     const [editId, setEditId] = useState(0)
- 
+    
+    // console.log(todo)
 
 
-    // const handleSubmit = async ( evt ) => {
-    //     try {
-    //       const response = await axios.post('/api/todolist', {
-    //         description: 'Description', // 'todo' is the description value from your state
-    //       });
-      
-    //       const newItem = response.data;
-      
-    //       // Update the React state with the new item
-    //       setList((prevList) => [...prevList, newItem]);
-    //       setTodo(''); // Clear the input field
-    //     } catch (error) {
-    //       console.error('Error adding todo item:', error);
-    //     }
-    //   };
-      
-
-    const handleSubmit = (evt) => {
+    const handleSubmit = async ( evt ) => {
         evt.preventDefault()
+        console.log('test submit')
 
-        if(editId){
-            const editTodo = list.find((i) => i.id === editId)
-            const updatedList = list.map((t) => 
-                t.id === editTodo.id 
-                ? (t = { id : t.id, todo })
-                : { id : t.id, todo : t.todo }
-            )
-
-            setList(updatedList)
-            setEditId(0)
-            setTodo("")
-            return
+        try {
+          const response = await axios.post('/api/todolist', {
+            
+            description: todo, 
+          });
+          console.log(response)
+        console.log(response.data)
+          const {description, id} = response.data;
+          let newItem = { description, id }
+      
+   
+          setList(response.data);
+          setTodo(''); 
+        } catch (error) {
+          console.error('Error adding todo description:', error);
         }
+      };
+      
+
+    // const handleSubmit = (evt) => {
+    //     evt.preventDefault()
+
+    //     if(editId){
+    //         const editTodo = list.find((i) => i.id === editId)
+    //         const updatedList = list.map((t) => 
+    //             t.id === editTodo.id 
+    //             ? (t = { id : t.id, todo })
+    //             : { id : t.id, todo : t.todo }
+    //         )
+
+    //         setList(updatedList)
+    //         setEditId(0)
+    //         setTodo("")
+    //         return
+    //     }
 
 
-        if(todo !== ''){
-            setList([{ id: `${todo} - ${Date.now}`, todo }, ...list])
-            console.log(todo)
-            setTodo(" ")
-        }
+    //     if(todo !== ''){
+    //         setList([{ id: `${todo} - ${Date.now}`, todo }, ...list])
+    //         console.log(todo)
+    //         setTodo(" ")
+    //     }
 
-    }
+    // }
 
 
-    const handleDelete = (id) => {
+    // const handleDelete = (id) => {
+        
+    //     const delTodo = list.filter((to) => to.id !== id)
+    //     setList([...delTodo])
+    // }
+
+
+    const handleDelete = async (id) => {
+        console.log('test delete')
+        const {data} = await axios.post(`/api/todolist/${id}/delete`,)
+
         const delTodo = list.filter((to) => to.id !== id)
         setList([...delTodo])
+    
     }
 
 
-    const handleEdit = (id) => {
+
+    const handleEdit = async (id) => {
+        console.log('testing the edit button')
+        console.log(id)
+        // const {data} = await axios.post(`/api/todolist/${initialTodoList.id}`)
+            
         const editTodo = list.find((i) => i.id === id)
-        setTodo(editTodo.todo)
+        setTodo(editTodo.description)
         setEditId(id)
     }
 
@@ -88,7 +111,9 @@ const TodoList = ( { initialTodoList } ) => {
         <input  
         type = "text" 
         value={todo}
-        onChange = {(evt) => setTodo(evt.target.value)}
+        onChange = {(evt) => {
+            console.log(evt.target.value) 
+            setTodo(evt.target.value)}}
         >
 
         </input>
@@ -99,34 +124,24 @@ const TodoList = ( { initialTodoList } ) => {
             {
                 list.map((t) => (
                     <li className='singleTodo' key={t.id}>
-                    <span className='todoText'> {t.todo} </span>
+                    <span className='todoText'> {t.description} </span>
                     <button onClick={() => handleEdit(t.id)}>edit</button>
                     <button onClick={() => handleDelete(t.id)}>delete</button>
                         </li>
                 ))
             }
-            <li>
-        <span> Learn React </span>
-        <button>edit</button>
-        <button>delete</button>
-            </li>
 
-            <li>
-        <span> Learn Express </span>
-        <button>edit</button>
-        <button>delete</button>
-            </li>
         </ul>
 
 
 
-    {data.map((list) => {
+    {/* {data.map((list) => {
         return(
 
-        <div key={list.id}>{list.item}</div>
+        <div key={list.id}>{list.description}</div>
 
         )
-    })}
+    })} */}
     </div>
 
     </div>

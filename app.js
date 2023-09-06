@@ -29,6 +29,7 @@ app.get('/api/todolist', (req,res) => {
 
 
 app.post('/api/todolist', (req, res) => {
+    console.log('Test one')
     const { description } = req.body
 
     const newItem = {
@@ -36,14 +37,16 @@ app.post('/api/todolist', (req, res) => {
         description: description || '',
     }
     TEST_DATA.push(newItem)
-    res.json(newItem)
+    res.json(TEST_DATA)
 })
 
 
 app.post('/api/todolist/:id', (req, res) => {
+   console.log('inside edit app.js')
+   
     const { id } = req.params
     const { description } = req.body
-
+console.log(req)
     const index = TEST_DATA.findIndex((description) => description.id === Number(id))
     const item = TEST_DATA[index]
 
